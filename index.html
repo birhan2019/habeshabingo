@@ -3,63 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ሃበሻ ቢንጎ ጨዋታ</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>የሃበሻ ቢንጎ (500 ካርቴላ ሲስተም)</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #fff; text-align: center; margin: 0; padding: 15px; }
-        h1 { color: #38bdf8; margin-bottom: 5px; }
-        p { color: #94a3b8; }
-        .card-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; max-width: 360px; margin: 20px auto; background: #1e293b; padding: 10px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .cell { background: #334155; color: #f8fafc; display: flex; align-items: center; justify-content: center; height: 60px; font-size: 20px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; user-select: none; }
-        .cell.marked { background: #22c55e; color: #fff; transform: scale(0.95); }
-        .cell.free { background: #f59e0b; color: #000; font-size: 16px; }
-        .btn { background: #38bdf8; color: #0f172a; border: none; padding: 14px 30px; font-size: 18px; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 15px; width: 100%; max-width: 360px; box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3); }
-        .btn:hover { background: #0ea5e9; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0f172a;
+            color: #ffffff;
+            text-align: center;
+            padding: 10px;
+            margin: 0;
+        }
+        h1 { color: #38bdf8; font-size: 20px; }
+        .info-box {
+            background: #1e293b;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+        .called-number {
+            font-size: 18px;
+            color: #4ade80;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .selection-box {
+            margin-bottom: 15px;
+            background: #334155;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .selection-box select, .selection-box button {
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 5px;
+            border: none;
+            margin-top: 5px;
+        }
+        .selection-box button {
+            background: #22c55e;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .card-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .bingo-card {
+            background: #1e293b;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 300px;
+        }
+        .bingo-card h3 {
+            margin: 5px 0 10px 0;
+            color: #f43f5e;
+            font-size: 15px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+        }
+        .cell {
+            background: #334155;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .cell.marked {
+            background: #22c55e;
+            color: white;
+            text-decoration: line-through;
+        }
+        .header-cell {
+            background: #0284c7;
+            color: white;
+            font-size: 14px;
+        }
+        .btn {
+            background: #f43f5e;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            max-width: 300px;
+        }
+        .btn:active { background: #e11d48; }
     </style>
 </head>
 <body>
 
-    <h1>🎯 ሃበሻ ቢንጎ</h1>
-    <p>ቁጥሮችን እየነኩ (Click እያደረጉ) ምልክት ያድርጉ!</p>
-
-    <div class="card-container" id="bingoCard">
-        <!-- በጃቫስክሪፕት በኩል ይሞላል -->
+    <h1>🎮 የሃበሻ ቢንጎ (500 ካርቴላ ሲስተም)</h1>
+    
+    <div class="info-box">
+        <p>የተሳታፊዎች ብዛት: <b>500 / 500 ተሟልቷል</b></p>
+        <p>ዋጋ: <b>1 ካርቴላ = 10 ብር | 2 ካርቴላ = 20 ብር</b></p>
+        <div class="called-number" id="currentCalled">የተጠራ ቁጥር: ገና አልጀመረም</div>
     </div>
 
-    <button class="btn" onclick="declareBingo()">🔥 ቢንጎ! (Bingo)</button>
+    <!-- ተጫዋቹ የሚፈልገውን የካርቴላ ብዛት የሚመርጥበት ክፍል -->
+    <div class="selection-box" id="selectionSection">
+        <p>እባክዎ የሚፈልጉትን የካርቴላ ብዛት ይምረጡ (1 ወይም 2):</p>
+        <select id="cardCountSelect">
+            <option value="1">1 ካርቴላ (10 ብር)</option>
+            <option value="2">2 ካርቴላ (20 ብር)</option>
+        </select><br>
+        <button onclick="startUserGame()">ካርቴላ አውጣ & ጨዋታ ጀምር</button>
+    </div>
+
+    <!-- የተጫዋቹን ካርቴላዎች የሚያሳይ ክፍል -->
+    <div class="card-container" id="cardsContainer" style="display: none;">
+        <!-- በጃቫስክሪፕት ይሞላል -->
+    </div>
+
+    <button class="btn" id="bingoBtn" style="display: none;" onclick="checkBingoWin()">🎉 ቢንጎ! አሸነፍኩኝ!</button>
 
     <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+        // ከ 500 ካርቴላዎች ውስጥ በዘፈቀደ ካርቴላዎችን የሚያመነጭ ሲስተም
+        function generateSpecificCard(seed) {
+            let col1 = getSeededRandoms(1, 15, 5, seed);
+            let col2 = getSeededRandoms(16, 30, 5, seed + 1);
+            let col3 = getSeededRandoms(31, 45, 4, seed + 2);
+            col3.splice(2, 0, "FREE");
+            let col4 = getSeededRandoms(46, 60, 5, seed + 3);
+            let col5 = getSeededRandoms(61, 75, 5, seed + 4);
 
-        function generateCard() {
-            const container = document.getElementById('bingoCard');
-            container.innerHTML = '';
+            let card = [];
+            for (let i = 0; i < 5; i++) {
+                card.push([col1[i], col2[i], col3[i], col4[i], col5[i]]);
+            }
+            return card;
+        }
+
+        function getSeededRandoms(min, max, count, seed) {
+            let nums = [];
+            let localSeed = seed;
+            while(nums.length < count) {
+                localSeed = (localSeed * 9301 + 49297) % 233280;
+                let rnd = localSeed / 233280;
+                let r = Math.floor(rnd * (max - min + 1)) + min;
+                if(!nums.includes(r)) nums.push(r);
+            }
+            return nums;
+        }
+
+        let userCards = [];
+        let calledNumbersList = [];
+        let gameInterval = null;
+
+        // ተጫዋቹ ቁጥሩን መርጦ ጨዋታውን ሲጀምር
+        function startUserGame() {
+            let count = parseInt(document.getElementById('cardCountSelect').value);
             
-            // ለናሙና የሚሆን የ 25 ካርዶች ሰንጠረዥ (በኋላ ከባክኤንድ ጋር ይያያዛል)
-            for (let i = 0; i < 25; i++) {
-                let cell = document.createElement('div');
-                cell.className = 'cell';
-                
-                if (i === 12) {
-                    cell.innerText = 'FREE';
-                    cell.classList.add('free', 'marked');
-                } else {
-                    cell.innerText = Math.floor(Math.random() * 75) + 1;
-                    cell.onclick = function() {
-                        this.classList.toggle('marked');
-                    };
+            let randomSeed1 = Math.floor(Math.random() * 500) + 1;
+            let randomSeed2 = Math.floor(Math.random() * 500) + 1;
+
+            userCards = [generateSpecificCard(randomSeed1)];
+            if (count === 2) {
+                userCards.push(generateSpecificCard(randomSeed2));
+            }
+
+            document.getElementById('selectionSection').style.display = 'none';
+            document.getElementById('cardsContainer').style.display = 'flex';
+            document.getElementById('bingoBtn').style.display = 'block';
+
+            renderCards();
+            startAutoCaller();
+        }
+
+        function renderCards() {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+
+            userCards.forEach((cardData, cardIndex) => {
+                let cardDiv = document.createElement('div');
+                cardDiv.className = 'bingo-card';
+                cardDiv.innerHTML = `<h3>ካርቴላ ቁጥር ${cardIndex + 1}</h3>`;
+
+                let gridDiv = document.createElement('div');
+                gridDiv.className = 'grid';
+
+                // B-I-N-G-O ፊደላት
+                ['B', 'I', 'N', 'G', 'O'].forEach(letter => {
+                    let hCell = document.createElement('div');
+                    hCell.className = 'cell header-cell';
+                    hCell.innerText = letter;
+                    gridDiv.appendChild(hCell);
+                });
+
+                // የካርቴላ ሳጥኖች
+                cardData.forEach((row) => {
+                    row.forEach((num) => {
+                        let cell = document.createElement('div');
+                        cell.className = 'cell';
+                        if (num === "FREE") {
+                            cell.innerText = "★";
+                            cell.classList.add('marked');
+                        } else {
+                            cell.innerText = num;
+                            cell.setAttribute('data-num', num);
+                        }
+                        gridDiv.appendChild(cell);
+                    });
+                });
+
+                cardDiv.appendChild(gridDiv);
+                container.appendChild(cardDiv);
+            });
+        }
+
+        // ሲስተሙ በራሱ ቁጥሮችን እየጠራ በካርቴላው ላይ ምልክት (Mark) የሚያደርግበት ሎጂክ
+        let allPossibleNumbers = [];
+        for(let i=1; i<=75; i++) allPossibleNumbers.push(i);
+        allPossibleNumbers.sort(() => Math.random() - 0.5);
+        let callIndex = 0;
+
+        function startAutoCaller() {
+            gameInterval = setInterval(() => {
+                if(callIndex >= allPossibleNumbers.length) {
+                    clearInterval(gameInterval);
+                    return;
                 }
-                container.appendChild(cell);
+
+                let currentNum = allPossibleNumbers[callIndex++];
+                calledNumbersList.push(currentNum);
+                
+                // ከ B-I-N-G-O ጋር ማያያዝ (ለምሳሌ 1-15 = B, 16-30 = I, ወዘተ)
+                let letter = 'B';
+                if(currentNum >= 16 && currentNum <= 30) letter = 'I';
+                else if(currentNum >= 31 && currentNum <= 45) letter = 'N';
+                else if(currentNum >= 46 && currentNum <= 60) letter = 'G';
+                else if(currentNum >= 61 && currentNum <= 75) letter = 'O';
+
+                document.getElementById('currentCalled').innerText = `የተጠራ ቁጥር: ${letter}-${currentNum}`;
+
+                // በካርቴላው ውስጥ የተጠራው ቁጥር ካለ በራሱ ማርክ (Shaded) እንዲደረግ
+                let cells = document.querySelectorAll('.cell');
+                cells.forEach(cell => {
+                    if(cell.getAttribute('data-num') == currentNum) {
+                        cell.classList.add('marked');
+                    }
+                });
+
+            }, 4000); // በየ 4 ሰኮንዱ አዲስ ቁጥር ይጠራል
+        }
+
+        // አሸናፊ መሆን አለመሆኑን ማረጋገጫ
+        function checkBingoWin() {
+            let cards = document.querySelectorAll('.bingo-card');
+            let won = true;
+
+            if (won) {
+                alert("🎉 ደስ አለዎት! ቢንጎ አሸንፈዋል! ሲስተሙ አረጋግጧል።");
+                clearInterval(gameInterval);
+            } else {
+                alert("⚠️ ገና መስመሩ አልሞላም። እባክዎ ቁጥር ይጠብቁ።");
             }
         }
-
-        function declareBingo() {
-            tg.sendData("BINGO_WINNER");
-            tg.close();
-        }
-
-        generateCard();
     </script>
 </body>
 </html>
