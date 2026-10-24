@@ -4,59 +4,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Habesha Bingo Mini App</title>
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
         body {
             background-color: #17212b;
-            color: #ffffff;
-            font-family: sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 10px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
         }
-        .header {
-            background-color: #242f3d;
-            padding: 12px;
-            border-radius: 10px;
+        /* Navigation / Menu Bar */
+        .menu-bar {
             display: flex;
             justify-content: space-around;
-            align-items: center;
+            width: 100%;
+            max-width: 420px;
+            background: #242f3d;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .menu-btn {
+            background: none;
+            border: none;
+            color: #829ab1;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .menu-btn.active, .menu-btn:hover {
+            color: #ffc107;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 420px;
             margin-bottom: 15px;
         }
         .badge {
             background: #2b5278;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .container {
+            width: 100%;
+            max-width: 420px;
+            display: none;
+        }
+        .container.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h3 {
+            margin-bottom: 10px;
+            font-size: 20px;
+            color: #ffc107;
+            text-align: center;
         }
         .ball-display {
             background: #ffc107;
             color: #000;
-            width: 70px;
-            height: 70px;
+            width: 75px;
+            height: 75px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 20px;
-            margin: 15px auto;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            font-size: 22px;
+            margin: 10px auto 20px auto;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
         }
         table {
-            margin: 0 auto;
+            margin: 0 auto 20px auto;
             border-collapse: collapse;
             background: #242f3d;
-            border-radius: 10px;
+            border-radius: 12px;
             overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
         th, td {
-            width: 50px;
-            height: 50px;
+            width: 54px;
+            height: 54px;
             text-align: center;
             font-weight: bold;
             font-size: 16px;
             border: 1px solid #17212b;
             cursor: pointer;
+            user-select: none;
         }
         th {
             background: #2b5278;
@@ -71,65 +120,243 @@
             background: #4caf50 !important;
             color: #fff;
         }
+        .btn-container {
+            width: 100%;
+            display: flex;
+            gap: 10px;
+        }
+        .action-btn {
+            flex: 1;
+            background: #4caf50;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .bingo-btn {
+            background: #e53935;
+        }
+        /* Forms and Lists Style */
+        .form-group {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #829ab1;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #2b5278;
+            background: #242f3d;
+            color: #fff;
+            font-size: 16px;
+        }
+        .card-box {
+            background: #242f3d;
+            padding: 15px;
+            border-radius: 10px;
+            width: 100%;
+            margin-bottom: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .card-box h4 {
+            color: #ffc107;
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body>
 
+    <!-- Top Status Header -->
     <div class="header">
         <div class="badge">BALANCE: <span id="balance">1640</span> ETB</div>
-        <div class="badge">PLAYERS: 205</div>
+        <div class="badge">ONLINE: <span id="onlinePlayers">584</span></div>
     </div>
 
-    <h3>Habesha Bingo</h3>
+    <!-- Mini App Bottom/Top Menu Bar -->
+    <div class="menu-bar">
+        <button class="menu-btn active" onclick="switchTab('game', this)">🎮 Game</button>
+        <button class="menu-btn" onclick="switchTab('deposit', this)">💳 Deposit</button>
+        <button class="menu-btn" onclick="switchTab('withdraw', this)">🏦 Withdraw</button>
+        <button class="menu-btn" onclick="switchTab('rules', this)">📜 Rules</button>
+        <button class="menu-btn" onclick="switchTab('history', this)">📊 History</button>
+    </div>
 
-    <div class="ball-display" id="currentBall">N-40</div>
+    <!-- 1. GAME TAB -->
+    <div id="game" class="container active">
+        <h3>Habesha Bingo Arena</h3>
+        <div class="ball-display" id="currentBall">N-37</div>
 
-    <table>
-        <tr>
-            <th>B</th><th>I</th><th>N</th><th>G</th><th>O</th>
-        </tr>
-        <tr>
-            <td onclick="toggleCell(this)">1</td>
-            <td onclick="toggleCell(this)">18</td>
-            <td onclick="toggleCell(this)">33</td>
-            <td onclick="toggleCell(this)">48</td>
-            <td onclick="toggleCell(this)">63</td>
-        </tr>
-        <tr>
-            <td onclick="toggleCell(this)">5</td>
-            <td onclick="toggleCell(this)">20</td>
-            <td onclick="toggleCell(this)">35</td>
-            <td onclick="toggleCell(this)">50</td>
-            <td onclick="toggleCell(this)">65</td>
-        </tr>
-        <tr>
-            <td onclick="toggleCell(this)">9</td>
-            <td onclick="toggleCell(this)">24</td>
-            <td onclick="toggleCell(this)">39</td>
-            <td onclick="toggleCell(this)">54</td>
-            <td onclick="toggleCell(this)">69</td>
-        </tr>
-        <tr>
-            <td onclick="toggleCell(this)">12</td>
-            <td onclick="toggleCell(this)">27</td>
-            <td onclick="toggleCell(this)">42</td>
-            <td onclick="toggleCell(this)">57</td>
-            <td onclick="toggleCell(this)">72</td>
-        </tr>
-        <tr>
-            <td onclick="toggleCell(this)">15</td>
-            <td onclick="toggleCell(this)">30</td>
-            <td onclick="toggleCell(this)">45</td>
-            <td onclick="toggleCell(this)">60</td>
-            <td onclick="toggleCell(this)">75</td>
-        </tr>
-    </table>
+        <table>
+            <tr><th>B</th><th>I</th><th>N</th><th>G</th><th>O</th></tr>
+            <tr>
+                <td onclick="toggleCell(this)">3</td>
+                <td onclick="toggleCell(this)">19</td>
+                <td onclick="toggleCell(this)">34</td>
+                <td onclick="toggleCell(this)">50</td>
+                <td onclick="toggleCell(this)">62</td>
+            </tr>
+            <tr>
+                <td onclick="toggleCell(this)">8</td>
+                <td onclick="toggleCell(this)">21</td>
+                <td onclick="toggleCell(this)">37</td>
+                <td onclick="toggleCell(this)">53</td>
+                <td onclick="toggleCell(this)">67</td>
+            </tr>
+            <tr>
+                <td onclick="toggleCell(this)">11</td>
+                <td onclick="toggleCell(this)">26</td>
+                <td onclick="toggleCell(this)">FREE</td>
+                <td onclick="toggleCell(this)">58</td>
+                <td onclick="toggleCell(this)">70</td>
+            </tr>
+            <tr>
+                <td onclick="toggleCell(this)">5</td>
+                <td onclick="toggleCell(this)">17</td>
+                <td onclick="toggleCell(this)">41</td>
+                <td onclick="toggleCell(this)">55</td>
+                <td onclick="toggleCell(this)">73</td>
+            </tr>
+            <tr>
+                <td onclick="toggleCell(this)">14</td>
+                <td onclick="toggleCell(this)">29</td>
+                <td onclick="toggleCell(this)">44</td>
+                <td onclick="toggleCell(this)">59</td>
+                <td onclick="toggleCell(this)">75</td>
+            </tr>
+        </table>
+
+        <div class="btn-container">
+            <button class="action-btn" onclick="shareContactAndJoin()">share contact</button>
+            <button class="action-btn bingo-btn" onclick="claimBingo()">BINGO!</button>
+        </div>
+    </div>
+
+    <!-- 2. DEPOSIT TAB -->
+    <div id="deposit" class="container">
+        <h3>ငንዘብ ማስገባት (Deposit)</h3>
+        <div class="card-box">
+            <h4>Telebirr / CBE Birr አካውንት</h4>
+            <p>ንግድ ቁጥር (Merchant): <b>987654</b></p>
+            <p>ስም: <b>Habesha Bingo Official</b></p>
+        </div>
+        <div class="form-group">
+            <label>የገንዘብ መጠን (ETB)</label>
+            <input type="number" id="depAmount" class="form-control" placeholder="ဥပር: 50">
+        </div>
+        <div class="form-group">
+            <label>የግብይት መለያ ቁጥር (Transaction ID)</label>
+            <input type="text" id="depTxId" class="form-control" placeholder="TRX12345678">
+        </div>
+        <button class="action-btn" style="width: 100%;" onclick="submitDeposit()">ዲፖዚት ላክ</button>
+    </div>
+
+    <!-- 3. WITHDRAW TAB -->
+    <div id="withdraw" class="container">
+        <h3>ገንዘብ ማውጣት (Withdraw)</h3>
+        <div class="form-group">
+            <label>የሚወጣው መጠን (ETB - ሚኒማም 50 ብር)</label>
+            <input type="number" id="witAmount" class="form-control" placeholder="50">
+        </div>
+        <div class="form-group">
+            <label>የቴሌብር/ባንክ ስልክ ቁጥር</label>
+            <input type="text" id="witPhone" class="form-control" placeholder="09xxxxxxxx">
+        </div>
+        <button class="action-btn bingo-btn" style="width: 100%;" onclick="submitWithdraw()">የማውጣት ጥያቄ ላክ</button>
+    </div>
+
+    <!-- 4. RULES TAB -->
+    <div id="rules" class="container">
+        <h3>የጨዋታ ሕጎች እና ደንቦች</h3>
+        <div class="card-box">
+            <h4>1. የቁጥር ክልል</h4>
+            <p>B (1-15) | I (16-30) | N (31-45) | G (46-60) | O (61-75)</p>
+        </div>
+        <div class="card-box">
+            <h4>2. አሸናፊነት</h4>
+            <p>አግድም፣ ቁልቁል፣ ሰያፍ ወይም ፉል ሃውስ (Full House) በመሙላት "BINGO!" በማለት ማሸነፍ ይቻላል።</p>
+        </div>
+        <div class="card-box">
+            <h4>3. ፍትሃዊነት</h4>
+            <p>ማንኛውንም ማጭበርበር መከላከል ስርአቱ በራስ-ሰር ያረጋግጣል።</p>
+        </div>
+    </div>
+
+    <!-- 5. HISTORY TAB -->
+    <div id="history" class="container">
+        <h3>የግብይት ታሪክ (Transaction History)</h3>
+        <div class="card-box">
+            <p>➕ <b>ዲፖዚት:</b> +100 ETB (Approved)</p>
+            <p style="color: #829ab1; font-size: 12px;">ቀን: 2026-10-24 10:30</p>
+        </div>
+        <div class="card-box">
+            <p>➖ <b>ጨዋታ መግቢያ:</b> -20 ETB</p>
+            <p style="color: #829ab1; font-size: 12px;">ቀን: 2026-10-24 11:00</p>
+        </div>
+    </div>
 
     <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Menu Tab Switcher
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // Cell Selection Logic
         function toggleCell(cell) {
-            cell.classList.toggle('selected');
+            if (cell.innerText === "FREE") {
+                cell.classList.add("selected");
+                return;
+            }
+            cell.classList.toggle("selected");
+        }
+
+        // Share Contact & Join Functionality
+        function shareContactAndJoin() {
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                alert("እንኳን ደህና መጡ " + tg.initDataUnsafe.user.first_name + "! ኮንታክትዎ ተጋርቷል፣ ወደ ጨዋታው ገብተዋል።");
+            } else {
+                alert("ኮንታክት የማጋራት ጥያቄ ወደ ቦቱ ተልኳል!");
+            }
+        }
+
+        function submitDeposit() {
+            let amount = document.getElementById('depAmount').value;
+            if(!amount) {
+                alert("እባክዎ የገንዘብ መጠን ያስገቡ!");
+                return;
+            }
+            alert("የዲፖዚት ጥያቄዎ ተቀባይነት አግኝቷል! በአጭር ጊዜ ውስጥ ይረጋገጣል።");
+        }
+
+        function submitWithdraw() {
+            let amount = document.getElementById('witAmount').value;
+            if(!amount || amount < 50) {
+                alert("ዝቅተኛው የማውጫ ገደብ 50 ብር ነው!");
+                return;
+            }
+            alert("የማውጣት ጥያቄዎ ወደ አድሚን ተልኳል!");
+        }
+
+        function claimBingo() {
+            alert("ቢንጎ! (Bingo!) አሸናፊነትዎ ተረጋግጧል!");
         }
     </script>
-
 </body>
 </html>
